@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+
+option (scalapb.options) = {
+  scope: FILE
+  package_name: "its.usrDir.data"
+  flat_package: true
+  single_file: false
+  import: "itc.usrDir._"
+  lenses: true
+  retain_source_code_info: false
+};
+
+
+message UserRole {
+    string name = 1; // User role name
+}
+
+message AppRoles {
+    string name = 1; // Application name
+    repeated UserRole roles = 2 [(scalapb.field).collection_type="Set"]; // Set of roles in this application
+}
+
+message User {
+    string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
+    string fN = 2; // First name
+    string sN = 3; // Second name
+    string lN = 4; // Last name
+    string lgn = 5; // Login name
+    string sec = 6; // Secret
+    string eml = 7; // E-mail
+    string adiJ = 8; // Additional fields as JSON document.
+    string dsr = 9; // Description
+    repeated AppRoles appRoles = 10 [(scalapb.field).collection_type="Set"]; // Set of roles for this user in this application
+}
