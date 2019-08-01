@@ -80,7 +80,7 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
         log.info(
           s"Server online at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/")
         log.info(
-          s"Server status available at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/status")
+          s"Server status available at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/usrDir/v01/status")
         log.debug("Apps config - {}", currentConfig)
         CoordinatedShutdown(_actorSystem).addTask(
           CoordinatedShutdown.PhaseBeforeServiceUnbind,

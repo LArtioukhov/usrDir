@@ -1,4 +1,4 @@
-package itc.usrDir.config
+package itc.usrDir.config.security
 
 sealed trait SecurityKey {
   def name: String

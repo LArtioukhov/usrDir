@@ -2,9 +2,9 @@ package itc.usrDir.config
 
 import scala.jdk.CollectionConverters._
 import com.typesafe.config.Config
+import itc.usrDir.config.security.{ AppRole, SecurityGroup, SecurityKey, SimpleSecurityKey }
 
 import scala.language.postfixOps
-
 import scala.collection.mutable
 
 trait WSConfig {

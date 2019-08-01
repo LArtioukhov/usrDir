@@ -2,6 +2,7 @@ package itc.usrDir
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import itc.usrDir.config._
+import itc.usrDir.config.security.{ AppRole, SecurityGroup, SecurityKey, SimpleSecurityKey }
 import its.usrDir.data._
 import spray.json._
 
@@ -9,16 +10,16 @@ import spray.json._
 trait JsonSupport extends SprayJsonSupport {
   import spray.json.DefaultJsonProtocol._
 
-  implicit object securityKeyJson extends RootJsonFormat[SecurityKey] {
+  implicit object securityKeyJson extends JsonFormat[SecurityKey] {
 
-    override def read(json: JsValue): SecurityKey = {
-      json match {
-        case JsString(n) => SimpleSecurityKey(n)
-        case _ => deserializationError("Security key expected")
-      }
+    override def read(json: JsValue): SecurityKey = json match {
+      case JsString(n) => SimpleSecurityKey(n)
+      case _ => deserializationError("Security key expected")
     }
 
-    override def write(obj: SecurityKey): JsValue = JsString(obj.name)
+    override def write(obj: SecurityKey): JsValue = obj match {
+      case SimpleSecurityKey(name) => JsString(name)
+    }
   }
 
   implicit val webInterfaceConfigJsonFormat = jsonFormat2(WebInterfaceConfig)
