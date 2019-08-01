@@ -1,3 +1,5 @@
 package itc.usrDir.config
 
-case class WebInterfaceConfig(host: String, port: Int)
+import akka.util.Timeout
+
+case class WebInterfaceConfig(host: String, port: Int, timeout: Timeout)

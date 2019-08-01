@@ -52,11 +52,13 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
   private var _instance: ActorRef = _
   private var _binding: Future[Http.ServerBinding] = _
   private lazy val log = Logging(_actorSystem, this.getClass)
-  private lazy val route = generateRoute(currentConfig)
+  private lazy val route = generateRoute()
 
   private def props = Props[RootSupervisor]
   override def rawConfig: Config =
     _actorSystem.settings.config.getConfig(serviceName)
+
+  override def userCacheProcessor: ActorRef = ???
 
   def init(): Unit = {
     _actorSystem = ActorSystem(serviceName)
@@ -76,7 +78,6 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
       case Failure(exception) =>
       case Success(bound) =>
         import akka.pattern.ask
-        implicit val to: Timeout = Timeout(5.seconds)
         log.info(
           s"Server online at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/")
         log.info(

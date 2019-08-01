@@ -14,11 +14,11 @@ option (scalapb.options) = {
 
 
 message UserRole {
-    string name = 1; // User role name
+    string roleName = 1; // User role name
 }
 
 message AppRoles {
-    string name = 1; // Application name
+    string appName = 1; // Application name
     repeated UserRole roles = 2 [(scalapb.field).collection_type="Set"]; // Set of roles in this application
 }
 
@@ -28,9 +28,22 @@ message User {
     string sN = 3; // Second name
     string lN = 4; // Last name
     string lgn = 5; // Login name
-    string sec = 6; // Secret
-    string eml = 7; // E-mail
-    string adiJ = 8; // Additional fields as JSON document.
-    string dsr = 9; // Description
+    string eml = 6; // E-mail
+    string adiJ = 7; // Additional fields as JSON document.
+    string dsr = 8; // Description
+    string sec = 9; // Secret
     repeated AppRoles appRoles = 10 [(scalapb.field).collection_type="Set"]; // Set of roles for this user in this application
+}
+
+message UserShortRepresentation {
+    string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
+    string fN = 2; // First name
+    string sN = 3; // Second name
+    string lN = 4; // Last name
+    string lgn = 5; // Login name
+    string eml = 6; // E-mail
+}
+
+message UsersList {
+    repeated UserShortRepresentation users =1;
 }

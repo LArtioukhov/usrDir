@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "user.proto";
+
+option (scalapb.options) = {
+  scope: FILE
+  package_name: "its.usrDir.commands"
+  flat_package: true
+  single_file: false
+  lenses: true
+  retain_source_code_info: false
+};
+
+message GetList {
+}
+
+message AddUser {
+    User user = 1;
+}

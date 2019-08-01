@@ -1,8 +1,15 @@
 package itc.usrDir.config
 
+import akka.util.Timeout
+
 import scala.jdk.CollectionConverters._
 import com.typesafe.config.Config
-import itc.usrDir.config.security.{ AppRole, SecurityGroup, SecurityKey, SimpleSecurityKey }
+import itc.usrDir.config.security.{
+  AppRole,
+  SecurityGroup,
+  SecurityKey,
+  SimpleSecurityKey
+}
 
 import scala.language.postfixOps
 import scala.collection.mutable
@@ -17,7 +24,10 @@ trait WSConfig {
 
   def webInterfaceConfig: WebInterfaceConfig = {
     val wIConfig = rawConfig.getConfig("webInterface")
-    WebInterfaceConfig(wIConfig.getString("host"), wIConfig.getInt("port"))
+    WebInterfaceConfig(
+      wIConfig.getString("host"),
+      wIConfig.getInt("port"),
+      Timeout.create(wIConfig.getDuration("timeout")))
   }
 
   def applications: Set[AppConfig] = {
