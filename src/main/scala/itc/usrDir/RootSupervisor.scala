@@ -1,29 +1,21 @@
 package itc.usrDir
 
 import akka.Done
-import akka.actor.SupervisorStrategy.Stop
-import akka.actor.{
-  Actor,
-  ActorRef,
-  ActorSystem,
-  CoordinatedShutdown,
-  OneForOneStrategy,
-  Props
-}
-import akka.event.Logging
+import akka.actor.SupervisorStrategy._
+import akka.actor.{CoordinatedShutdown ⇒ CS, _}
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
-import akka.util.Timeout
 import com.typesafe.config.Config
-import itc.usrDir.config.WSConfig
+import itc.globals.actorMessages._
+import itc.globals.exceptions.ErrorAppNotInitialized
+import itc.usrDir.config.{CurrentConfig, WSConfig}
 
-import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 
-class RootSupervisor extends Actor {
-  import itc.usrDir.RootSupervisor._
+class RootSupervisor extends Actor with ActorLogging {
 
   override val supervisorStrategy: OneForOneStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 10 seconds) {
@@ -32,76 +24,77 @@ class RootSupervisor extends Actor {
 
   override def receive: Receive = {
     case DoStart => sender ! Started
-    case DoStop => sender ! Stopped
+    case DoStop  => sender ! Stopped
+    case msg     ⇒ log.info(msg.toString)
   }
 }
 
 object RootSupervisor extends WebServiceRoutes with WSConfig {
 
-  case object DoStart
-  case object DoStop
-  case object Started
-  case object Stopped
-  case object AlreadyStared
-  case object AlreadyStopped
+  implicit private var _actorSystem: ActorSystem             = ActorSystem(serviceName)
+  implicit private var _actorMaterializer: ActorMaterializer = ActorMaterializer()
+  implicit private var _executionContext: ExecutionContext   = _actorSystem.dispatcher
 
-  implicit private var _actorSystem: ActorSystem = _
-  implicit private var _actorMaterializer: ActorMaterializer = _
-  implicit private var _executionContext: ExecutionContext = _
-
-  private var _instance: ActorRef = _
-  private var _binding: Future[Http.ServerBinding] = _
-  private lazy val log = Logging(_actorSystem, this.getClass)
-  private lazy val route = generateRoute()
+  private var _instance: ActorRef                        = _
+  private var _bindingFuture: Future[Http.ServerBinding] = _
+  private lazy val log                                   = akka.event.Logging(_actorSystem, classOf[RootSupervisor])
+  private lazy val route                                 = generateRoute()
 
   private def props = Props[RootSupervisor]
+
   override def rawConfig: Config =
     _actorSystem.settings.config.getConfig(serviceName)
 
-  override def userCacheProcessor: ActorRef = ???
+  override def userCacheProcessor: ActorRef = _instance
+
+  override def getCurrentConfig: CurrentConfig = currentConfig
 
   def init(): Unit = {
-    _actorSystem = ActorSystem(serviceName)
     log.info("RootSupervisor init")
-    log.debug("Actor system created")
-    _actorMaterializer = ActorMaterializer()
-    log.debug("Actor materializer created")
-    _executionContext = _actorSystem.dispatcher
+    _instance = _actorSystem.actorOf(props)
+    _bindingFuture = Http().bindAndHandle(route, webInterfaceConfig.host, webInterfaceConfig.port)
     log.info("RootSupervisor initiated")
   }
 
   def start(): Unit = {
     log.info("RootSupervisor starting")
-    _instance = _actorSystem.actorOf(props)
-    _binding = Http().bindAndHandle(route, webInterfaceConfig.host, webInterfaceConfig.port)
-    _binding.onComplete {
-      case Failure(exception) =>
-      case Success(bound) =>
-        import akka.pattern.ask
-        log.info(
-          s"Server online at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/")
-        log.info(
-          s"Server status available at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/usrDir/v01/status")
-        log.debug("Apps config - {}", currentConfig)
-        CoordinatedShutdown(_actorSystem).addTask(
-          CoordinatedShutdown.PhaseBeforeServiceUnbind,
-          "RootSupervisorStopping") { () =>
-            (_instance ? DoStop).map(_ => Done)
-          }
-        _instance ? DoStart onComplete {
-          case Failure(exception) =>
-          case Success(Started | AlreadyStared) =>
-            log.info("Success started")
-          case Success(any) =>
+    _bindingFuture.flatMap { bound =>
+      import akka.pattern.ask
+      log.info(s"Server online at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/")
+      log.info(
+        s"Server status available at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/usrDir/v01/status")
+      log.debug("Apps config - {}", currentConfig)
+      CS(_actorSystem).addTask(CS.PhaseBeforeServiceUnbind, "RootSupervisorStopping") { () =>
+        (_instance ? DoStop).map { response =>
+          log.info(response.toString)
+          Done
         }
+      }
+      _instance ? DoStart
+    } onComplete {
+      case Success(Started | AlreadyStarted) =>
+        log.info("RootSupervisor started")
+      case Success(any) =>
+        log.error("Microservice {} can't start on cause: unexpected message from RootSupervisor - {}", serviceName, any)
+        CS(_actorSystem).run(CS.UnknownReason)
+      case Failure(exception) =>
+        log.error("Service {} can't start on cause: {}", serviceName, exception)
+        CS(_actorSystem).run(CS.UnknownReason)
     }
-    log.info("RootSupervisor started")
   }
 
   def stop(): Unit = {
-
-    val done: Future[Done] = CoordinatedShutdown(_actorSystem).run(CoordinatedShutdown.UnknownReason)
-
+    if (_instance == null) throw ErrorAppNotInitialized(s"$serviceName not initialised")
+    else {
+      _bindingFuture.flatMap(_.unbind()).onComplete(_ ⇒ CS(_actorSystem).run(CS.JvmExitReason))
+    }
   }
+
+  def destroy(): Unit =
+    if (_instance == null) throw ErrorAppNotInitialized(s"$serviceName not initialised")
+    else {
+      _bindingFuture.flatMap(_.unbind()).onComplete(_ ⇒ CS(_actorSystem).run(CS.JvmExitReason))
+    }
+
 
 }

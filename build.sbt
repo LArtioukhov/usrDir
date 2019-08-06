@@ -1,5 +1,5 @@
-lazy val akkaHttpVersion = "10.1.8"
-lazy val akkaVersion = "2.6.0-M4"
+lazy val akkaHttpVersion = "10.1.9"
+lazy val akkaVersion = "2.5.23"
 
 lazy val root = (project in file(".")).
   settings(
@@ -17,7 +17,7 @@ lazy val root = (project in file(".")).
       "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
       "ch.qos.logback" % "logback-classic" % "1.2.3",
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
-      "com.thesamet.scalapb" %% "scalapb-json4s" % "0.9.2",
+      "com.thesamet.scalapb" %% "scalapb-json4s" % "0.9.3",
 
       "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
       "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,

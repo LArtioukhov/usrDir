@@ -18,18 +18,17 @@ import scala.concurrent.duration._
 
 trait WebServiceRoutes extends JsonSupport {
 
-  // TODO: Здеся должен быть не сам обработчик а маршрутизатор. И он один для всего решения
   def userCacheProcessor: ActorRef
-  def currentConfig: CurrentConfig
+  def getCurrentConfig: CurrentConfig
 
-  implicit lazy val timeout: Timeout = currentConfig.webInterfaceConfig.timeout
+  implicit lazy val timeout: Timeout = getCurrentConfig.webInterfaceConfig.timeout
 
   def generateRoute(): Route = {
     pathPrefix("usrDir") {
       pathPrefix("v01") {
         path("status") {
           get {
-            complete(currentConfig)
+            complete(getCurrentConfig)
           }
         } ~ path("users") {
           get {
@@ -40,7 +39,7 @@ trait WebServiceRoutes extends JsonSupport {
         } ~ pathPrefix("appSettings") {
           path(Segment) { appName =>
             get {
-              complete(currentConfig.securityConfig.find(_.appName == appName))
+              complete(getCurrentConfig.securityConfig.find(_.appName == appName))
             }
           }
         }
