@@ -15,17 +15,20 @@ class UserCache(conf: CurrentConfig) extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case SetRoles(uId, appName, roles) ⇒
-      if (users.contains(uId)) {
+      val user = if (users.contains(uId)) {
         val currentUser = users(uId)
         val newAppRoles = AppRoles(appName, roles)
         val updatedUser = currentUser.withAppRoles(currentUser.appRoles.filter(_.appName != appName) + newAppRoles)
         users(uId) = updatedUser
-        sender ! updatedUser
+        updatedUser
       } else {
         val newUser = User(uId, Set(AppRoles(appName, roles)))
         users(uId) = newUser
-        sender ! newUser
+        newUser
       }
+      sender ! user
+
+    // TODO: Store user here
 
     case CheckKey(uId, appName, key) ⇒
       if (users.contains(uId)) {

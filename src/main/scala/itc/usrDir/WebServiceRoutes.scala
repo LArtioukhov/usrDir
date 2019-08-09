@@ -55,13 +55,20 @@ trait WebServiceRoutes extends JsonSupport {
               entity(as[SetRoles]) { setRoles ⇒
                 if (setRoles.appName != appName)
                   reject(ValidationRejection("Incorrect appName"))
-                else if (setRoles.roles.forall { role =>
-                  getCurrentConfig.securityConfig.filter(_.appName == appName).flatMap(_.appRoles).map(_.roleName).contains(role)
+                else if (setRoles.uId != uId)
+                  reject(ValidationRejection("Incorrect user Id"))
+                else if (!setRoles.roles.forall { role =>
+                  getCurrentConfig.securityConfig
+                    .filter(_.appName == appName)
+                    .flatMap(_.appRoles)
+                    .map(_.roleName)
+                    .contains(role)
                 })
+                  reject(ValidationRejection("Incorrect roles set"))
+                else
                   complete {
                     (userCacheProcessor ? setRoles).mapTo[User]
                   }
-                else reject(ValidationRejection("Incorrect roles set"))
               }
             }
           }
