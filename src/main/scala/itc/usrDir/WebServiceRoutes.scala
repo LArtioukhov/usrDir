@@ -2,15 +2,15 @@ package itc.usrDir
 
 import akka.actor._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.get
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import akka.http.scaladsl.server.{Route, ValidationRejection}
 import akka.pattern._
 import akka.util.Timeout
 import itc.usrDir.config.CurrentConfig
-import its.usrDir.commands.GetList
-import its.usrDir.data.UsersList
+import its.usrDir.commands.{CheckKey, SetRoles}
+import its.usrDir.data.{User, UserKeyPresent}
 
 trait WebServiceRoutes extends JsonSupport {
 
@@ -21,23 +21,52 @@ trait WebServiceRoutes extends JsonSupport {
     getCurrentConfig.webInterfaceConfig.timeout
 
   def generateRoute(): Route = {
+
+    val appsPath = getCurrentConfig.securityConfig.map(appConfig => appRoute(appConfig.appName)).toSeq
+
     pathPrefix("usrDir") {
       pathPrefix("v01") {
         path("status") {
           get {
             complete(getCurrentConfig)
           }
-        } ~ path("users") {
-          get {
-            parameters('sP.as[Int] ? 0, 'aP.as[Int] ? 40) { (sP, aP) =>
-              complete {
-                (userCacheProcessor ? GetList(sP, aP)).mapTo[UsersList]
+        } ~ pathPrefix("app") {
+          concat(appsPath: _*)
+        }
+      }
+    }
+  }
+
+  def appRoute(appName: String): Route = {
+    pathPrefix(appName) {
+      pathEnd {
+        get {
+          complete(getCurrentConfig.securityConfig.find(_.appName == appName))
+        }
+      } ~ pathPrefix("user") {
+        pathPrefix(Segment) { uId ⇒
+          pathPrefix("key") {
+            path(Segment) { keyName ⇒
+              get {
+                complete {
+                  (userCacheProcessor ? CheckKey(uId, appName, keyName)).mapTo[UserKeyPresent]
+                }
               }
             }
-          }
-        } ~ pathPrefix("app") {
-          path(Segment) { appName =>
-            complete(appName)
+          } ~ pathEnd {
+            put {
+              entity(as[SetRoles]) { setRoles ⇒
+                if (setRoles.appName != appName)
+                  reject(ValidationRejection("Incorrect appName"))
+                else if (setRoles.roles.forall { role =>
+                  getCurrentConfig.securityConfig.filter(_.appName == appName).flatMap(_.appRoles).map(_.roleName).contains(role)
+                })
+                  complete {
+                    (userCacheProcessor ? setRoles).mapTo[User]
+                  }
+                else reject(ValidationRejection("Incorrect roles set"))
+              }
+            }
           }
         }
       }

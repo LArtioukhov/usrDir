@@ -4,6 +4,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.util.Timeout
 import itc.usrDir.config._
 import itc.usrDir.config.security._
+import its.usrDir.commands.SetRoles
 import its.usrDir.data._
 import spray.json._
 
@@ -27,9 +28,7 @@ trait JsonSupport extends SprayJsonSupport {
 
   implicit object timeoutJsonFormat extends JsonFormat[Timeout] {
     override def write(obj: Timeout): JsValue =
-      JsObject(
-        "length" -> JsNumber(obj.duration.length),
-        "unit" -> JsString(obj.duration.unit.name))
+      JsObject("length" -> JsNumber(obj.duration.length), "unit" -> JsString(obj.duration.unit.name))
 
     override def read(json: JsValue): Timeout =
       json.asJsObject.getFields("length", "unit") match {
@@ -45,11 +44,9 @@ trait JsonSupport extends SprayJsonSupport {
   implicit val appConfigJsonFormat = jsonFormat3(AppConfig)
   implicit val currentConfigJsonFormat = jsonFormat2(CurrentConfig)
 
-  implicit val userRoleJsonFormat = jsonFormat1(UserRole.apply)
   implicit val appRolesJsonFormat = jsonFormat2(AppRoles.apply)
-  implicit val userJsonFormat = jsonFormat11(User.apply)
-  implicit val userShortRepresentationJsonFormat = jsonFormat6(
-    UserShortRepresentation.apply)
-  implicit val usersListJsonFormat = jsonFormat3(UsersList.apply)
+  implicit val userJsonFormat = jsonFormat2(User.apply)
 
+  implicit val userKeyPresentJsonFormat = jsonFormat1(UserKeyPresent.apply)
+  implicit val setRolesJsonFormat = jsonFormat3(SetRoles.apply)
 }

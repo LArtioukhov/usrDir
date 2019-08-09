@@ -2,20 +2,19 @@ package itc.usrDir
 
 import akka.Done
 import akka.actor.SupervisorStrategy._
-import akka.actor.{ CoordinatedShutdown => CS, _ }
+import akka.actor.{CoordinatedShutdown ⇒ CS, _}
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import itc.globals.actorMessages._
 import itc.globals.exceptions.ErrorAppNotInitialized
-import itc.usrDir.config.{ CurrentConfig, WSConfig }
+import itc.usrDir.config.{CurrentConfig, WSConfig}
 import itc.usrDir.core.UserCache
-import its.usrDir.commands.GetList
 
 import scala.concurrent.duration._
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 
 class RootSupervisor extends Actor with ActorLogging {
 
@@ -28,10 +27,10 @@ class RootSupervisor extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case DoStart =>
-      userCache = context.actorOf(UserCache.props)
+      userCache = context.actorOf(UserCache.props(RootSupervisor.getCurrentConfig))
       sender ! Started
     case DoStop => sender ! Stopped
-    case msg: GetList => userCache.tell(msg, sender)
+    case msg: Command => userCache.tell(msg, sender)
     case msg ⇒ log.info(msg.toString)
   }
 }

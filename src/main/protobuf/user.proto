@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "scalapb/scalapb.proto";
+import "google/protobuf/wrappers.proto";
 
 option (scalapb.options) = {
   scope: FILE
@@ -10,46 +11,21 @@ option (scalapb.options) = {
   import: "itc.usrDir._"
   lenses: true
   retain_source_code_info: false
+  no_primitive_wrappers: false
 };
 
 
-message UserRole {
-    string roleName = 1; // User role name
-}
-
 message AppRoles {
     string appName = 1; // Application name
-    repeated UserRole roles = 2 [(scalapb.field).collection_type="Set"]; // Set of roles in this application
+    repeated string roles = 2 [(scalapb.field).collection_type = "Set"]; // Set of roles in this application
 }
 
 message User {
     string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
-    bool blocked = 2;
-    string fN = 3; // First name
-    string sN = 4; // Second name
-    string lN = 5; // Last name
-    string lgn = 6; // Login name
-    string eml = 7; // E-mail
-    string dsr = 8; // Description
-    string sec = 9; // Secret
-    repeated AppRoles appRoles = 10 [(scalapb.field).collection_type="Set"]; // Set of roles for this user in this application
-}
-
-message UserShortRepresentation {
-    string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
-    string fN = 2; // First name
-    string sN = 3; // Second name
-    string lN = 4; // Last name
-    string lgn = 5; // Login name
-    string eml = 6; // E-mail
+    repeated AppRoles appRoles = 5 [(scalapb.field).collection_type = "Set"]; // Set of roles for this user in this application
 }
 
 message UserKeyPresent {
-    bool present = 1;
+    bool value = 1;
 }
 
-message UsersList {
-    repeated UserShortRepresentation users =1;
-    int32 sP = 2;
-    int32 total = 3;
-}

@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "scalapb/scalapb.proto";
-import "user.proto";
 
 option (scalapb.options) = {
   scope: FILE
@@ -13,16 +12,16 @@ option (scalapb.options) = {
   retain_source_code_info: false
 };
 
-message GetList {
-    int32 sP = 1;
-    int32 num = 2;
-}
-
-message AddUser {
-    User user = 1;
+message SetRoles {
+    option (scalapb.message).extends = "itc.usrDir.Command";
+    string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
+    string appName = 2; // Application name
+    repeated string roles = 3 [(scalapb.field).collection_type = "Set"]; // Set of roles in this application
 }
 
 message CheckKey {
+    option (scalapb.message).extends = "itc.usrDir.Command";
     string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
-    string key = 2;
+    string appName = 2; // Application name
+    string key = 3;
 }
