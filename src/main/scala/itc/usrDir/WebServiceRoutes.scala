@@ -2,15 +2,12 @@ package itc.usrDir
 
 import akka.actor._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.directives.MethodDirectives.get
-import akka.http.scaladsl.server.directives.PathDirectives.path
-import akka.http.scaladsl.server.directives.RouteDirectives.complete
-import akka.http.scaladsl.server.{Route, ValidationRejection}
+import akka.http.scaladsl.server._
 import akka.pattern._
 import akka.util.Timeout
 import itc.usrDir.config.CurrentConfig
-import its.usrDir.commands.{CheckKey, SetRoles}
-import its.usrDir.data.{User, UserKeyPresent}
+import its.usrDir.commands._
+import its.usrDir.data._
 
 trait WebServiceRoutes extends JsonSupport {
 
