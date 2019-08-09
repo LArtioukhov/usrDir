@@ -18,6 +18,8 @@ import scala.util.{Failure, Success}
 
 class RootSupervisor extends Actor with ActorLogging {
 
+  import itc.usrDir.RootSupervisor.getCurrentConfig
+
   private var userCache: ActorRef = _
 
   override val supervisorStrategy: OneForOneStrategy =
@@ -27,7 +29,7 @@ class RootSupervisor extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case DoStart =>
-      userCache = context.actorOf(UserCache.props(RootSupervisor.getCurrentConfig))
+      userCache = context.actorOf(UserCache.props(getCurrentConfig))
       sender ! Started
     case DoStop => sender ! Stopped
     case msg: Command => userCache.tell(msg, sender)

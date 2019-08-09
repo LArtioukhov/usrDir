@@ -15,7 +15,6 @@ class UserCache(conf: CurrentConfig) extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case SetRoles(uId, appName, roles) ⇒
-
       if (users.contains(uId)) {
         val currentUser = users(uId)
         val newAppRoles = AppRoles(appName, roles)
@@ -29,7 +28,6 @@ class UserCache(conf: CurrentConfig) extends Actor with ActorLogging {
       }
 
     case CheckKey(uId, appName, key) ⇒
-
       if (users.contains(uId)) {
 
         val userRoles: Set[String] =
