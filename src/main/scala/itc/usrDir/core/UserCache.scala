@@ -9,10 +9,13 @@ import scala.collection.mutable
 
 class UserCache extends Actor with ActorLogging {
 
-  private val users: mutable.Map[ElementId, User] = mutable.HashMap.empty
+  private val users: mutable.SortedMap[ElementId, User] =
+    mutable.SortedMap.empty
 
   override def receive: Receive = {
-    case GetList() => sender ! UsersList(users.values.map(_.toUserShortRepresentation).toSeq)
+    case GetList(s, a) =>
+      sender ! UsersList(
+        users.values.slice(s, s + a).map(_.toUserShortRepresentation).toSeq)
   }
 }
 

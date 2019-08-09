@@ -24,12 +24,12 @@ message AppRoles {
 
 message User {
     string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
-    string fN = 2; // First name
-    string sN = 3; // Second name
-    string lN = 4; // Last name
-    string lgn = 5; // Login name
-    string eml = 6; // E-mail
-    string adiJ = 7; // Additional fields as JSON document.
+    bool blocked = 2;
+    string fN = 3; // First name
+    string sN = 4; // Second name
+    string lN = 5; // Last name
+    string lgn = 6; // Login name
+    string eml = 7; // E-mail
     string dsr = 8; // Description
     string sec = 9; // Secret
     repeated AppRoles appRoles = 10 [(scalapb.field).collection_type="Set"]; // Set of roles for this user in this application
@@ -44,6 +44,12 @@ message UserShortRepresentation {
     string eml = 6; // E-mail
 }
 
+message UserKeyPresent {
+    bool present = 1;
+}
+
 message UsersList {
     repeated UserShortRepresentation users =1;
+    int32 sP = 2;
+    int32 total = 3;
 }
