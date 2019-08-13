@@ -16,7 +16,7 @@ import scala.reflect.ClassTag
 
 class GrpsService(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef, executionContext: ExecutionContext) {
 
-  implicit val to: Timeout          = interfacesConfig.timeout
+  implicit val to: Timeout = interfacesConfig.timeout
   private[this] var _server: Server = _
 
   def start(): Unit = {
@@ -46,6 +46,7 @@ class GrpsService(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef, 
 
 object GrpsService {
   def apply(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef)(
-      implicit executionContext: ExecutionContext): GrpsService =
+    implicit
+    executionContext: ExecutionContext): GrpsService =
     new GrpsService(interfacesConfig, rootSupervisor, executionContext)
 }

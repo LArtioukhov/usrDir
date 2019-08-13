@@ -26,6 +26,6 @@ message User {
 }
 
 message UserKeyPresent {
-    bool value = 1;
+    bool vl = 1;
 }
 

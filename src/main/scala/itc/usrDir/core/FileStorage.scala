@@ -53,7 +53,7 @@ case class FileStorage(storeConfig: StoreConfig) extends Actor with ActorLogging
       val storageRoot = new File(fileStorageConfig.path)
       storageRoot.listFiles(_.isDirectory).toVector.foreach { dir =>
         dir.listFiles(_.getName.endsWith(".dat")).foreach { datFile =>
-          val iS  = new FileInputStream(datFile)
+          val iS = new FileInputStream(datFile)
           val usr = User.parseFrom(iS)
           _count += 1
           userCache ! InsertUser(usr)
