@@ -27,6 +27,7 @@
     <!-- Log levels available OFF, ERROR, WARN, INFO, DEBUG, TRACE and ALL. -->
     <logger name="itc" level="DEBUG" />
     <logger name="akka" level="INFO" />
+    <logger name="io.netty" level="INFO"/>
     <logger name="com.typesafe.sslconfig" level="INFO" />
     <root level="DEBUG">
         <appender-ref ref="STDOUT" />

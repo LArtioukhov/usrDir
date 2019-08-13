@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "user.proto";
+import "commands.proto";
+
+option (scalapb.options) = {
+  scope: FILE
+  package_name: "itc.usrDir.service"
+  flat_package: true
+  single_file: false
+  lenses: true
+  import: "itc.usrDir._"
+  retain_source_code_info: false
+};
+
+
+service UserCatalogService {
+
+    rpc CheckAppKeyPresent (CheckKey) returns (UserKeyPresent) {
+    }
+
+    rpc SetAppRoles (SetRoles) returns (User) {
+    }
+
+    rpc GetAppUser (GetUser) returns (User) {
+    }
+}

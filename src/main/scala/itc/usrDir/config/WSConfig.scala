@@ -1,18 +1,13 @@
 package itc.usrDir.config
 
 import akka.util.Timeout
-
-import scala.jdk.CollectionConverters._
 import com.typesafe.config.Config
-import itc.usrDir.config.security.{
-  AppRole,
-  SecurityGroup,
-  SecurityKey,
-  SimpleSecurityKey
-}
+import itc.globals.exceptions.ReadConfigException
+import itc.usrDir.config.security.{AppRole, SecurityGroup, SecurityKey, SimpleSecurityKey}
 
-import scala.language.postfixOps
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
+import scala.language.postfixOps
 
 trait WSConfig {
 
@@ -20,14 +15,11 @@ trait WSConfig {
 
   def rawConfig: Config
 
-  lazy val currentConfig = CurrentConfig(webInterfaceConfig, applications)
+  lazy val currentConfig = CurrentConfig(interfacesConfig, applications, storage)
 
-  def webInterfaceConfig: WebInterfaceConfig = {
-    val wIConfig = rawConfig.getConfig("webInterface")
-    WebInterfaceConfig(
-      wIConfig.getString("host"),
-      wIConfig.getInt("port"),
-      Timeout.create(wIConfig.getDuration("timeout")))
+  def interfacesConfig: InterfacesConfig = {
+    val iConfig = rawConfig.getConfig("interfaces")
+    InterfacesConfig(iConfig.getString("host"), iConfig.getInt("webPort"), iConfig.getInt("grpcPort"), Timeout.create(iConfig.getDuration("timeout")))
   }
 
   def applications: Set[AppConfig] = {
@@ -37,9 +29,12 @@ trait WSConfig {
         val rawAppConfig = rawConfig.getConfig(app)
         val roles = rawAppConfig.getStringList("roles").asScala.toSet
         val appRoles: Set[AppRole] = roles.map { role =>
+          val rawRoleConfig = rawAppConfig.getConfig(role)
+          val description =
+            if (rawRoleConfig.hasPath("description")) rawRoleConfig.getString("description")
+            else role
           val sGroups = {
-            rawAppConfig
-              .getConfig(role)
+            rawRoleConfig
               .getStringList("groups")
               .asScala
               .map { group: String =>
@@ -55,10 +50,18 @@ trait WSConfig {
                 }
               }
           }
-          AppRole(role, sGroups.map(_.groupName).toSet)
+          AppRole(role, description, sGroups.map(_.groupName).toSet)
         }
         AppConfig(app, appRoles, securityGroups.toSet)
       }
+    }
+  }
+
+  def storage: StoreConfig = {
+    val rawStorageConfig = rawConfig.getConfig("storage")
+    rawStorageConfig.getString("type") match {
+      case "file" => FileStorageConfig(rawStorageConfig.getString("path"))
+      case other => throw ReadConfigException(s"Unexpected storage type - $other")
     }
   }
 

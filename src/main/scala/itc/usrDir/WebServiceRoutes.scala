@@ -5,9 +5,9 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.pattern._
 import akka.util.Timeout
+import itc.usrDir.commands._
 import itc.usrDir.config.CurrentConfig
-import its.usrDir.commands._
-import its.usrDir.data._
+import itc.usrDir.data._
 
 trait WebServiceRoutes extends JsonSupport {
 
@@ -15,7 +15,7 @@ trait WebServiceRoutes extends JsonSupport {
   def getCurrentConfig: CurrentConfig
 
   implicit lazy val timeout: Timeout =
-    getCurrentConfig.webInterfaceConfig.timeout
+    getCurrentConfig.interfacesConfig.timeout
 
   def generateRoute(): Route = {
 
@@ -41,9 +41,9 @@ trait WebServiceRoutes extends JsonSupport {
           complete(getCurrentConfig.securityConfig.find(_.appName == appName))
         }
       } ~ pathPrefix("user") {
-        pathPrefix(Segment) { uId ⇒
+        pathPrefix(Segment) { uId =>
           pathPrefix("key") {
-            path(Segment) { keyName ⇒
+            path(Segment) { keyName =>
               get {
                 complete {
                   (userCacheProcessor ? CheckKey(uId, appName, keyName)).mapTo[UserKeyPresent]
@@ -52,7 +52,7 @@ trait WebServiceRoutes extends JsonSupport {
             }
           } ~ pathEnd {
             put {
-              entity(as[SetRoles]) { setRoles ⇒
+              entity(as[SetRoles]) { setRoles =>
                 if (setRoles.appName != appName)
                   reject(ValidationRejection("Incorrect appName"))
                 else if (setRoles.uId != uId)
@@ -69,6 +69,10 @@ trait WebServiceRoutes extends JsonSupport {
                   complete {
                     (userCacheProcessor ? setRoles).mapTo[User]
                   }
+              }
+            } ~ get {
+              complete {
+                (userCacheProcessor ? GetUser(uId, appName)).mapTo[User]
               }
             }
           }

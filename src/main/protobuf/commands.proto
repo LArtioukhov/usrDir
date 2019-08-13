@@ -4,7 +4,7 @@ import "scalapb/scalapb.proto";
 
 option (scalapb.options) = {
   scope: FILE
-  package_name: "its.usrDir.commands"
+  package_name: "itc.usrDir.commands"
   flat_package: true
   single_file: false
   lenses: true
@@ -24,4 +24,10 @@ message CheckKey {
     string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
     string appName = 2; // Application name
     string key = 3;
+}
+
+message GetUser {
+    option (scalapb.message).extends = "itc.usrDir.Command";
+    string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
+    string appName = 2; // Application name
 }

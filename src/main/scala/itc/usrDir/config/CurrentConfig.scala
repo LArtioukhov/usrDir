@@ -1,3 +1,3 @@
 package itc.usrDir.config
 
-case class CurrentConfig(webInterfaceConfig: WebInterfaceConfig, securityConfig: Set[AppConfig])
+case class CurrentConfig(interfacesConfig: InterfacesConfig, securityConfig: Set[AppConfig], storeConfig: StoreConfig)

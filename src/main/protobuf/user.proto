@@ -1,11 +1,11 @@
 syntax = "proto3";
 
 import "scalapb/scalapb.proto";
-import "google/protobuf/wrappers.proto";
+//import "google/protobuf/wrappers.proto";
 
 option (scalapb.options) = {
   scope: FILE
-  package_name: "its.usrDir.data"
+  package_name: "itc.usrDir.data"
   flat_package: true
   single_file: false
   import: "itc.usrDir._"
