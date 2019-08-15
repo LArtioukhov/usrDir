@@ -1,4 +1,5 @@
 import java.io.File
+import java.security._
 
 val f1 = new File("/opt/itc/userCatalog/data")
 
@@ -14,4 +15,10 @@ f2.getAbsolutePath.replace(".dat", ".bac")
 "a.data".endsWith(".dat")
 
 "a.dat".endsWith(".dat")
+
+val digest = MessageDigest.getInstance("SHA-512")
+
+digest.update("Array.of".getBytes)
+
+digest.digest()
 
