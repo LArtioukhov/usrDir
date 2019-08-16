@@ -46,15 +46,21 @@ class RootSupervisor extends Actor with ActorLogging {
 
 object RootSupervisor extends WebServiceRoutes with WSConfig {
 
-  implicit private var _actorSystem: ActorSystem = ActorSystem(serviceName)
-  implicit private var _actorMaterializer: ActorMaterializer =
-    ActorMaterializer()
-  implicit private var _executionContext: ExecutionContext =
-    _actorSystem.dispatcher
+  override val serviceName: String = "userKeysCatalog"
+
+  implicit private val _actorSystem: ActorSystem = ActorSystem(serviceName)
+  implicit private val _actorMaterializer: ActorMaterializer = ActorMaterializer()
+  implicit private val _executionContext: ExecutionContext = _actorSystem.dispatcher
 
   private var _instance: ActorRef = _
   private var _bindingFuture: Future[Http.ServerBinding] = _
   private var _grpcService: GrpsService = _
+
+  override def rawConfig: Config = _actorSystem.settings.config.getConfig(serviceName)
+
+  override def userCacheProcessor: ActorRef = _instance
+
+  override def getCurrentConfig: CurrentConfig = currentConfig
 
   private lazy val log =
     akka.event.Logging(_actorSystem, classOf[RootSupervisor])
@@ -62,17 +68,10 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
 
   private def props = Props[RootSupervisor]
 
-  override def rawConfig: Config =
-    _actorSystem.settings.config.getConfig(serviceName)
-
-  override def userCacheProcessor: ActorRef = _instance
-
-  override def getCurrentConfig: CurrentConfig = currentConfig
-
   def init(): Unit = {
     log.info("RootSupervisor init")
     _instance = _actorSystem.actorOf(props, "RootSupervisor")
-    _bindingFuture = Http().bindAndHandle(route, interfacesConfig.host, interfacesConfig.webPrt)
+    _bindingFuture = Http().bindAndHandle(route, getCurrentConfig.interfacesConfig.host, getCurrentConfig.interfacesConfig.webPrt)
     log.info("RootSupervisor initiated")
   }
 
@@ -82,7 +81,11 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
       import akka.pattern.ask
       log.info(s"Server online at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/")
       log.info(
-        s"Server status available at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/usrDir/v01/status")
+        s"Server status available at http://{}:{}/{}/{}/status",
+        bound.localAddress.getHostString,
+        bound.localAddress.getPort,
+        getCurrentConfig.systemName,
+        getCurrentConfig.version)
       log.debug("Apps config - {}", currentConfig)
       CS(_actorSystem)
         .addTask(CS.PhaseBeforeServiceUnbind, "RootSupervisorStopping") { () =>
@@ -103,7 +106,7 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
         CS(_actorSystem).run(CS.UnknownReason)
     }
 
-    _grpcService = GrpsService(interfacesConfig, _instance)
+    _grpcService = GrpsService(getCurrentConfig.interfacesConfig, _instance)
     _grpcService.start()
     log.info("grpcService started on {}", _grpcService.servicePort)
   }

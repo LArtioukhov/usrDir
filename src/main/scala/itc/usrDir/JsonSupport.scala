@@ -55,7 +55,7 @@ trait JsonSupport extends SprayJsonSupport {
     override def read(json: JsValue): StoreConfig = serializationError("Reading storage config is not supported.")
   }
 
-  implicit val currentConfigJsonFormat = jsonFormat3(CurrentConfig)
+  implicit val currentConfigJsonFormat = jsonFormat5(CurrentConfig)
 
   // Data
   implicit val appRolesJsonFormat = jsonFormat2(AppRoles.apply)

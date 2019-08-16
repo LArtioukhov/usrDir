@@ -1,8 +1,9 @@
 lazy val akkaHttpVersion = "10.1.9"
 lazy val akkaVersion = "2.5.24"
 
-lazy val root = (project in file(".")).
-  settings(
+lazy val root = (project in file("."))
+  .enablePlugins(JavaServerAppPackaging)
+  .settings(
     inThisBuild(List(
       organization := "itc",
       scalaVersion := "2.13.0",
@@ -27,6 +28,8 @@ lazy val root = (project in file(".")).
       "org.scalatest" %% "scalatest" % "3.0.8" % Test
     )
   )
+
+scalacOptions += "-deprecation"
 
 PB.targets in Compile := Seq(
   scalapb.gen() -> (sourceManaged in Compile).value

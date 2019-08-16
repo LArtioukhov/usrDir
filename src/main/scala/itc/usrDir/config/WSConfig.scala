@@ -11,18 +11,24 @@ import scala.language.postfixOps
 
 trait WSConfig {
 
-  val serviceName = "usrCatalog"
+  def serviceName: String
 
   def rawConfig: Config
 
-  lazy val currentConfig = CurrentConfig(interfacesConfig, applications, storage)
+  lazy val currentConfig = CurrentConfig(serviceName, version, interfacesConfig, applications, storage)
 
-  def interfacesConfig: InterfacesConfig = {
+  def version: String = rawConfig.getString("version")
+
+  private def interfacesConfig = {
     val iConfig = rawConfig.getConfig("interfaces")
-    InterfacesConfig(iConfig.getString("host"), iConfig.getInt("webPort"), iConfig.getInt("grpcPort"), Timeout.create(iConfig.getDuration("timeout")))
+    InterfacesConfig(
+      iConfig.getString("host"),
+      iConfig.getInt("webPort"),
+      iConfig.getInt("grpcPort"),
+      Timeout.create(iConfig.getDuration("timeout")))
   }
 
-  def applications: Set[AppConfig] = {
+  private def applications: Set[AppConfig] = {
     rawConfig.getStringList("applications").asScala.toSet.map { app: String =>
       {
         val securityGroups: mutable.Set[SecurityGroup] = mutable.Set.empty
@@ -57,7 +63,7 @@ trait WSConfig {
     }
   }
 
-  def storage: StoreConfig = {
+  private def storage: FileStorageConfig = {
     val rawStorageConfig = rawConfig.getConfig("storage")
     rawStorageConfig.getString("type") match {
       case "file" => FileStorageConfig(rawStorageConfig.getString("path"))

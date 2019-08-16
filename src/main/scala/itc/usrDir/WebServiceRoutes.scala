@@ -17,20 +17,15 @@ trait WebServiceRoutes extends JsonSupport {
   implicit lazy val timeout: Timeout =
     getCurrentConfig.interfacesConfig.timeout
 
-  def generateRoute(): Route = {
+  def contextRoute(innerRoute: Route): Route = pathPrefix(getCurrentConfig.systemName) {
+    pathPrefix(getCurrentConfig.version) {
+      innerRoute
+    }
+  }
 
-    val appsPath = getCurrentConfig.securityConfig.map(appConfig => appRoute(appConfig.appName)).toSeq
-
-    pathPrefix("usrDir") {
-      pathPrefix("v01") {
-        path("status") {
-          get {
-            complete(getCurrentConfig)
-          }
-        } ~ pathPrefix("app") {
-          concat(appsPath: _*)
-        }
-      }
+  def statusRoute: Route = path("status") {
+    get {
+      complete(getCurrentConfig)
     }
   }
 
@@ -80,4 +75,16 @@ trait WebServiceRoutes extends JsonSupport {
       }
     }
   }
+
+  def generateRoute(): Route = {
+
+    val appsPath = getCurrentConfig.securityConfig.map(appConfig => appRoute(appConfig.appName)).toSeq
+
+    contextRoute {
+      statusRoute ~ pathPrefix("app") {
+        concat(appsPath: _*)
+      }
+    }
+  }
+
 }
