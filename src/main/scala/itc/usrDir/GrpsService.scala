@@ -1,6 +1,6 @@
 package itc.usrDir
 
-import akka.actor._
+import akka.actor.ActorRef
 import akka.pattern._
 import akka.util.Timeout
 import io.grpc.Server

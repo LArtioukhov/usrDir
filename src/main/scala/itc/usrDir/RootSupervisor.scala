@@ -4,6 +4,7 @@ import akka.Done
 import akka.actor.SupervisorStrategy._
 import akka.actor.{CoordinatedShutdown => CS, _}
 import akka.http.scaladsl.Http
+import akka.pattern._
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import itc.globals.actorMessages._
@@ -78,7 +79,6 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
   def start(): Unit = {
     log.info("RootSupervisor starting")
     _bindingFuture.flatMap { bound =>
-      import akka.pattern.ask
       log.info(s"Server online at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/")
       log.info(
         s"Server status available at http://{}:{}/{}/{}/status",

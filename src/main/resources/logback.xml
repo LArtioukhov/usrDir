@@ -30,7 +30,7 @@
     <logger name="io.netty" level="INFO"/>
     <logger name="com.typesafe.sslconfig" level="INFO" />
     <root level="DEBUG">
-        <appender-ref ref="ROLLING"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
 

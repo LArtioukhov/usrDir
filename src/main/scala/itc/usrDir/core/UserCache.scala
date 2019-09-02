@@ -18,7 +18,8 @@ class UserCache(conf: CurrentConfig) extends Actor with ActorLogging {
     case GetUser(uId, iAppName) =>
       val result = {
         val u = if (users.contains(uId)) users(uId) else User(uId)
-        u.withAppRoles(u.appRoles.filter(_.appName == iAppName))
+        //        u.withAppRoles(u.appRoles.filter(_.appName == iAppName))
+        u
       }
       sender ! result
 
