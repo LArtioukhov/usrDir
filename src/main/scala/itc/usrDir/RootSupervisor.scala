@@ -57,7 +57,7 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
   private var _bindingFuture: Future[Http.ServerBinding] = _
   private var _grpcService: GrpsService = _
 
-  override def rawConfig: Config = _actorSystem.settings.config.getConfig(serviceName)
+  override lazy val rawConfig: Config = _actorSystem.settings.config.getConfig(serviceName)
 
   override def userCacheProcessor: ActorRef = _instance
 
@@ -73,6 +73,7 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
     log.info("RootSupervisor init")
     _instance = _actorSystem.actorOf(props, "RootSupervisor")
     _bindingFuture = Http().bindAndHandle(route, getCurrentConfig.interfacesConfig.host, getCurrentConfig.interfacesConfig.webPrt)
+    _grpcService = GrpsService(getCurrentConfig.interfacesConfig, _instance)
     log.info("RootSupervisor initiated")
   }
 
@@ -105,8 +106,6 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
         log.error("Service {} can't start on cause: {}", serviceName, exception)
         CS(_actorSystem).run(CS.UnknownReason)
     }
-
-    _grpcService = GrpsService(getCurrentConfig.interfacesConfig, _instance)
     _grpcService.start()
     log.info("grpcService started on {}", _grpcService.servicePort)
   }
@@ -118,16 +117,10 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
       _bindingFuture
         .flatMap(_.unbind())
         .onComplete(_ => CS(_actorSystem).run(CS.JvmExitReason))
+      _grpcService.stop()
     }
   }
 
-  def destroy(): Unit =
-    if (_instance == null)
-      throw ErrorAppNotInitialized(s"$serviceName not initialised")
-    else {
-      _bindingFuture
-        .flatMap(_.unbind())
-        .onComplete(_ => CS(_actorSystem).run(CS.JvmExitReason))
-    }
+  def destroy(): Unit = stop()
 
 }

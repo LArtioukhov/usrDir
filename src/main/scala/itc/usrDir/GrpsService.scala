@@ -28,6 +28,10 @@ class GrpsService(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef, 
       .start()
   }
 
+  def stop(): Unit = {
+    if (_server != null) _server.shutdown()
+  }
+
   def servicePort: Int = _server.getPort
 
   private class UserCatalogServiceGrpcImpl extends UserCatalogService {
