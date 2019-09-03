@@ -1,3 +1,4 @@
+
 lazy val akkaHttpVersion = "10.1.9"
 lazy val akkaVersion = "2.5.25"
 
@@ -5,7 +6,7 @@ lazy val root = (project in file("."))
   .enablePlugins(JavaServerAppPackaging)
   .settings(
     inThisBuild(List(
-      organization := "itc",
+      organization := "itc.userDirectory",
       scalaVersion := "2.13.0",
       version := "0.0.1-SNAPSHOT",
     )),
@@ -36,3 +37,11 @@ PB.targets in Compile := Seq(
 )
 
 inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings)
+
+mappings in(Compile, packageBin) ++= {
+  val protoFilesPathFinder: PathFinder = ((baseDirectory in Compile).value / "src" / "main" / "protobuf" * "*.proto") filter {
+    _.isFile
+  }
+  val baseDirs: Seq[File] = file("src/main") :: Nil
+  protoFilesPathFinder.get pair Path.rebase(baseDirs.head, "/userDirectory")
+}
