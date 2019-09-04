@@ -12,7 +12,6 @@ import itc.usrDir.service.UserCatalogServiceGrpc
 import itc.usrDir.service.UserCatalogServiceGrpc.UserCatalogService
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.ClassTag
 
 class GrpsService(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef, executionContext: ExecutionContext) {
 
@@ -36,21 +35,17 @@ class GrpsService(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef, 
 
   private class UserCatalogServiceGrpcImpl extends UserCatalogService {
 
-    private def makeRequest[I <: Command, O: ClassTag](request: I): Future[O] =
-      (rootSupervisor ? request).mapTo[O]
+    override def checkAppKeyPresent(request: CheckKey): Future[UserKeyPresent] = (rootSupervisor ? request).mapTo[UserKeyPresent]
 
-    override def checkAppKeyPresent(request: CheckKey): Future[UserKeyPresent] = makeRequest(request)
+    override def setAppRoles(request: SetRoles): Future[User] = (rootSupervisor ? request).mapTo[User]
 
-    override def setAppRoles(request: SetRoles): Future[User] = makeRequest(request)
-
-    override def getAppUser(request: GetUser): Future[User] = makeRequest(request)
+    override def getAppUser(request: GetUser): Future[User] = (rootSupervisor ? request).mapTo[User]
   }
 
 }
 
 object GrpsService {
-  def apply(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef)(
-    implicit
-    executionContext: ExecutionContext): GrpsService =
+  def apply(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef)(implicit
+                                                                          executionContext: ExecutionContext): GrpsService =
     new GrpsService(interfacesConfig, rootSupervisor, executionContext)
 }
