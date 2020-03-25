@@ -12,6 +12,7 @@ option (scalapb.options) = {
   lenses: true
   import: "itc.usrDir._"
   retain_source_code_info: false
+  preserve_unknown_fields: false
 };
 
 

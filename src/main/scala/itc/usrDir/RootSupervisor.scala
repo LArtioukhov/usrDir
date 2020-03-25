@@ -2,7 +2,7 @@ package itc.usrDir
 
 import akka.Done
 import akka.actor.SupervisorStrategy._
-import akka.actor.{CoordinatedShutdown => CS, _}
+import akka.actor.{ CoordinatedShutdown => CS, _ }
 import akka.http.scaladsl.Http
 import akka.pattern._
 import akka.stream.ActorMaterializer
@@ -10,13 +10,13 @@ import com.typesafe.config.Config
 import itc.globals.actorMessages._
 import itc.globals.exceptions.ErrorAppNotInitialized
 import itc.usrDir.commands.Load
-import itc.usrDir.config.{CurrentConfig, FileStorageConfig, WSConfig}
-import itc.usrDir.core.{FileStorage, UserCache}
+import itc.usrDir.config.{ CurrentConfig, FileStorageConfig, WSConfig }
+import itc.usrDir.core.{ FileStorage, UserCache }
 
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.language.postfixOps
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 class RootSupervisor extends Actor with ActorLogging {
 
@@ -50,7 +50,7 @@ object RootSupervisor extends WebServiceRoutes with WSConfig {
   override val serviceName: String = "userKeysCatalog"
 
   implicit private val _actorSystem: ActorSystem = ActorSystem(serviceName)
-  implicit private val _actorMaterializer: ActorMaterializer = ActorMaterializer()
+  //  implicit private val _actorMaterializer: ActorMaterializer = ActorMaterializer()
   implicit private val _executionContext: ExecutionContext = _actorSystem.dispatcher
 
   private var _instance: ActorRef = _

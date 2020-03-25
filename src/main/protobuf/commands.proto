@@ -10,24 +10,25 @@ option (scalapb.options) = {
   lenses: true
   import: "itc.usrDir._"
   retain_source_code_info: false
+  preserve_unknown_fields: false
 };
 
 message SetRoles {
-    option (scalapb.message).extends = "itc.usrDir.Command";
-    string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
-    string appName = 2; // Application name
-    repeated string roles = 3 [(scalapb.field).collection_type = "Set"]; // Set of roles in this application
+  option (scalapb.message).extends = "itc.usrDir.Command";
+  string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
+  string appName = 2; // Application name
+  repeated string roles = 3 [(scalapb.field).collection_type = "Set"]; // Set of roles in this application
 }
 
 message CheckKey {
-    option (scalapb.message).extends = "itc.usrDir.Command";
-    string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
-    string appName = 2; // Application name
-    string key = 3;
+  option (scalapb.message).extends = "itc.usrDir.Command";
+  string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
+  string appName = 2; // Application name
+  string key = 3;
 }
 
 message GetUser {
-    option (scalapb.message).extends = "itc.usrDir.Command";
-    string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
-    string appName = 2; // Application name
+  option (scalapb.message).extends = "itc.usrDir.Command";
+  string uId = 1 [(scalapb.field).type = "itc.usrDir.ElementId"]; // User ID
+  string appName = 2; // Application name
 }

@@ -1,6 +1,6 @@
 package itc.usrDir.core
 
-import java.io.{File, FileInputStream, FileOutputStream}
+import java.io.{ File, FileInputStream, FileOutputStream }
 
 import akka.actor._
 import itc.globals.exceptions.InternalApiError
@@ -65,5 +65,5 @@ case class FileStorage(storeConfig: StoreConfig) extends Actor with ActorLogging
 }
 
 object FileStorage {
-  def props(storeConfig: StoreConfig) = Props(new FileStorage(storeConfig))
+  def props(storeConfig: StoreConfig): Props = Props(new FileStorage(storeConfig))
 }

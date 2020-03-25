@@ -3,7 +3,7 @@ package itc.usrDir.config
 import akka.util.Timeout
 import com.typesafe.config.Config
 import itc.globals.exceptions.ReadConfigException
-import itc.usrDir.config.security.{AppRole, SecurityGroup, SecurityKey, SimpleSecurityKey}
+import itc.usrDir.config.security.{ AppRole, SecurityGroup, SecurityKey, SimpleSecurityKey }
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -15,7 +15,7 @@ trait WSConfig {
 
   def rawConfig: Config
 
-  lazy val currentConfig = CurrentConfig(serviceName, version, interfacesConfig, applications, storage)
+  lazy val currentConfig: CurrentConfig = CurrentConfig(serviceName, version, interfacesConfig, applications, storage)
 
   def version: String = rawConfig.getString("version")
 

@@ -29,7 +29,7 @@ trait WebServiceRoutes extends JsonSupport {
     }
   }
 
-  def appRoute(appName: String): Route = {
+  def appRoute(appName: String): Route =
     pathPrefix(appName) {
       pathEnd {
         get {
@@ -74,7 +74,6 @@ trait WebServiceRoutes extends JsonSupport {
         }
       }
     }
-  }
 
   def generateRoute(): Route = {
 

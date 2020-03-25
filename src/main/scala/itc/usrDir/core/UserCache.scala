@@ -3,7 +3,7 @@ package itc.usrDir.core
 import akka.actor._
 import itc.usrDir._
 import itc.usrDir.commands._
-import itc.usrDir.config.{AppConfig, CurrentConfig}
+import itc.usrDir.config.{ AppConfig, CurrentConfig }
 import itc.usrDir.data._
 
 import scala.collection.mutable
@@ -76,5 +76,5 @@ class UserCache(conf: CurrentConfig) extends Actor with ActorLogging {
 }
 
 object UserCache {
-  def props(conf: CurrentConfig) = Props(new UserCache(conf))
+  def props(conf: CurrentConfig): Props = Props(new UserCache(conf))
 }

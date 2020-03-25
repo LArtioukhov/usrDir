@@ -12,6 +12,7 @@ option (scalapb.options) = {
   lenses: true
   retain_source_code_info: false
   no_primitive_wrappers: false
+  preserve_unknown_fields: false
 };
 
 

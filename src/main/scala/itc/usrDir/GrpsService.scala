@@ -11,7 +11,7 @@ import itc.usrDir.data._
 import itc.usrDir.service.UserCatalogServiceGrpc
 import itc.usrDir.service.UserCatalogServiceGrpc.UserCatalogService
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 class GrpsService(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef, executionContext: ExecutionContext) {
 
@@ -45,7 +45,6 @@ class GrpsService(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef, 
 }
 
 object GrpsService {
-  def apply(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef)(implicit
-                                                                          executionContext: ExecutionContext): GrpsService =
+  def apply(interfacesConfig: InterfacesConfig, rootSupervisor: ActorRef)(implicit executionContext: ExecutionContext): GrpsService =
     new GrpsService(interfacesConfig, rootSupervisor, executionContext)
 }
